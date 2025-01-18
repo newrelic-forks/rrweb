@@ -85,9 +85,11 @@ export function getUntaintedPrototype<T extends keyof BasePrototypeCache>(
       ),
   );
 
-  const isUntainted = isUntaintedAccessors && isUntaintedMethods && !isAngularZonePresent();
+  const isUntainted =
+    isUntaintedAccessors && isUntaintedMethods && !isAngularZonePresent();
   // we're going to default to what we do have
-  let impl: BasePrototypeCache[T] = defaultObj.prototype as BasePrototypeCache[T]
+  let impl: BasePrototypeCache[T] =
+    defaultObj.prototype as BasePrototypeCache[T];
   // but if it is tainted
   if (!isUntainted) {
     // try to load a fresh copy from a sandbox iframe
@@ -101,7 +103,7 @@ export function getUntaintedPrototype<T extends keyof BasePrototypeCache>(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
         const candidate = (win as any)[key].prototype as BasePrototypeCache[T];
         if (candidate) {
-          impl = candidate
+          impl = candidate;
         }
       }
     } finally {
@@ -112,7 +114,7 @@ export function getUntaintedPrototype<T extends keyof BasePrototypeCache>(
   }
 
   untaintedBasePrototype[key] = impl;
-    return impl
+  return impl;
 }
 
 const untaintedAccessorCache: Record<
