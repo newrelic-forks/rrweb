@@ -1,13 +1,13 @@
-import type { Mirror } from 'rrweb-snapshot';
 import {
-  blockClass,
+  type blockClass,
   CanvasContext,
-  canvasManagerMutationCallback,
-  canvasMutationWithType,
-  IWindow,
-  listenerHandler,
-} from '@rrweb/types';
-import { hookSetter, isBlocked, patch } from '../../../utils';
+  type canvasManagerMutationCallback,
+  type canvasMutationWithType,
+  type IWindow,
+  type listenerHandler,
+} from '@newrelic/rrweb-types';
+import { hookSetter, isBlocked } from '../../../utils';
+import { patch } from '@newrelic/rrweb-utils';
 import { saveWebGLVar, serializeArgs } from './serialize-args';
 
 function patchGLPrototype(
@@ -16,7 +16,6 @@ function patchGLPrototype(
   cb: canvasManagerMutationCallback,
   blockClass: blockClass,
   blockSelector: string | null,
-  mirror: Mirror,
   win: IWindow,
 ): listenerHandler[] {
   const handlers: listenerHandler[] = [];
@@ -93,7 +92,6 @@ export default function initCanvasWebGLMutationObserver(
   win: IWindow,
   blockClass: blockClass,
   blockSelector: string | null,
-  mirror: Mirror,
 ): listenerHandler {
   const handlers: listenerHandler[] = [];
 
@@ -104,7 +102,6 @@ export default function initCanvasWebGLMutationObserver(
       cb,
       blockClass,
       blockSelector,
-      mirror,
       win,
     ),
   );
@@ -117,7 +114,6 @@ export default function initCanvasWebGLMutationObserver(
         cb,
         blockClass,
         blockSelector,
-        mirror,
         win,
       ),
     );

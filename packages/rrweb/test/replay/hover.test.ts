@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { vi } from 'vitest';
 import { launchPuppeteer, waitForRAF } from '../utils';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import type * as puppeteer from 'puppeteer';
@@ -15,7 +16,9 @@ interface ISuite {
 expect.extend({ toMatchImageSnapshot });
 
 describe('replayer', function () {
-  jest.setTimeout(10_000);
+  // Increase timeouts – the hover test occasionally hits the 20s default
+  // in CI when the first couple of animation frames are delayed.
+  vi.setConfig({ testTimeout: 60_000, hookTimeout: 60_000 });
 
   let code: ISuite['code'];
   let styles: ISuite['styles'];
@@ -23,9 +26,10 @@ describe('replayer', function () {
   let page: ISuite['page'];
 
   beforeAll(async () => {
-    browser = await launchPuppeteer({ devtools: true });
+    // Use standard headless launch (no devtools) to reduce flakiness & speed up in CI
+    browser = await launchPuppeteer();
 
-    const bundlePath = path.resolve(__dirname, '../../dist/rrweb.js');
+    const bundlePath = path.resolve(__dirname, '../../dist/rrweb.umd.cjs');
     const stylePath = path.resolve(
       __dirname,
       '../../src/replay/styles/style.css',
@@ -57,11 +61,23 @@ describe('replayer', function () {
   describe('hover', () => {
     it('should trigger hover on mouseDown', async () => {
       await page.evaluate(`
-      const { Replayer } = rrweb;
-      const replayer = new Replayer(events);
-      replayer.pause(110); // mouseDown event is at 100
-    `);
+        const { Replayer } = rrweb;
+        window.replayer = new Replayer(events, { speed: 1 });
+        // Pause slightly after the mouseDown timestamp to fast-forward to that interaction
+        window.replayer.pause(110);
+      `);
 
+      // Wait until the synthetic :hover class has been applied inside the replayer iframe
+      await page.waitForFunction(
+        () =>
+          !!document
+            .querySelector('iframe')
+            ?.contentDocument?.querySelector('.\\:hover'),
+        { timeout: 5000 },
+      );
+
+      // A couple of RAFs to settle layout/paint before screenshot
+      await waitForRAF(page);
       await waitForRAF(page);
 
       const image = await page.screenshot();

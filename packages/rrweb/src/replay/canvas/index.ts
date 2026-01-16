@@ -1,10 +1,10 @@
 import type { Replayer } from '..';
 import {
   CanvasContext,
-  canvasMutationCommand,
-  canvasMutationData,
-  canvasMutationParam,
-} from '@rrweb/types';
+  type canvasMutationCommand,
+  type canvasMutationData,
+  type canvasMutationParam,
+} from '@newrelic/rrweb-types';
 import webglMutation from './webgl';
 import canvas2DMutation from './2d';
 

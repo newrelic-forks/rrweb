@@ -1,10 +1,6 @@
 # rrvideo
 
-[中文文档](./README.zh_CN.md)
-
-rrvideo is a tool for transforming the session recorded by [rrweb](https://github.com/rrweb-io/rrweb) into a video.
-
-![Demo Video](./demo/demo.gif)
+rrvideo is a tool for transforming the session recorded by [rrweb](https://github.com/newrelic-forks/rrweb) into a video.
 
 ## Install rrvideo
 

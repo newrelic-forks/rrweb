@@ -1,12 +1,12 @@
-import type { Mirror } from 'rrweb-snapshot';
 import {
-  blockClass,
+  type blockClass,
   CanvasContext,
-  canvasManagerMutationCallback,
-  IWindow,
-  listenerHandler,
-} from '@rrweb/types';
-import { hookSetter, isBlocked, patch } from '../../../utils';
+  type canvasManagerMutationCallback,
+  type IWindow,
+  type listenerHandler,
+} from '@newrelic/rrweb-types';
+import { hookSetter, isBlocked } from '../../../utils';
+import { patch } from '@newrelic/rrweb-utils';
 import { serializeArgs } from './serialize-args';
 
 export default function initCanvas2DMutationObserver(

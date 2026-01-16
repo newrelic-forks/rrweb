@@ -1,27 +1,45 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - master
+  workflow_run:
+    workflows: ["CI/CD Checks"]
+    types: [completed]
+  workflow_dispatch: {}
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
     name: Release
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'master'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      # This is important. Trusted Publishing requires this for the OIDC exchange.
+      id-token: write
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Setup Node.js lts/*
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v5
         with:
-          node-version: lts/*
+          # Trusted Publishing requires `npm@11.5.1` or later. Compatible
+          # versions of `npm` started shipping with Node.js v24.5.0.
+          # If, for some odd reason, you need to use an earlier Node.js release,
+          # you _must_ add another step subsequent to this one that performs:
+          # `npm install -g npm@latest`.
+          node-version: 24.x
+          # This is important. The OIDC exchange requires that the registry
+          # URL matches on both ends.
+          registry-url: https://registry.npmjs.org
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: true
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
@@ -30,10 +48,5 @@ jobs:
           publish: yarn run release
         env:
           NODE_OPTIONS: '--max-old-space-size=4096'
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
 
-      # - name: Send a Slack notification if a publish happens
-      #   if: steps.changesets.outputs.published == 'true'
-      #   # You can do something when a publish happens.
-      #   run: my-slack-bot send-notification --message "A new version of ${GITHUB_REPOSITORY} was published!"

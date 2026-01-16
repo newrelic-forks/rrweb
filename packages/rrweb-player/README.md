@@ -1,7 +1,3 @@
-_Looking for a Vue.js version? Go here --> [@preflight-hq/rrweb-player-vue](https://github.com/Preflight-HQ/rrweb-player-vue)_
-
----
-
 # rrweb-player
 
 Since rrweb's replayer only provides a basic UI, you can choose rrweb-replayer which is based on rrweb's public APIs but has a feature-rich replayer UI.
@@ -19,7 +15,7 @@ rrweb-player can also be included with `<script>`：
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/style.css"
 />
-<script src="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/index.umd.cjs"></script>
 ```
 
 Or installed by using NPM：
@@ -58,7 +54,7 @@ new rrwebPlayer({
 | showController | true         | whether to show the controller UI                                                                                   |
 | tags           | {}           | customize the custom events style with a key-value map                                                              |
 | inactiveColor  | #D4D4D4      | Customize the color of inactive periods indicator in the progress bar with a valid CSS color string.                |
-| ...            | -            | all the [rrweb Replayer options](https://github.com/rrweb-io/rrweb/blob/master/guide.md#options-1) will be bypassed |
+| ...            | -            | all the rrweb Replayer options will be bypassed |
 
 ## methods on the rrwebPlayer component
 
