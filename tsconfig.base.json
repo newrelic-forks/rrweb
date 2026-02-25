@@ -9,7 +9,7 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     /* rootDir & outDir are defined per-package to avoid emitting to repo root */
-    "lib": ["es6", "dom"],
+    "lib": ["es6", "dom", "es2021.weakref"],
     "sourceMap": true,
     "skipLibCheck": true,
     "declaration": true,

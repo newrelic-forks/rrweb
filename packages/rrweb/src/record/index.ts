@@ -27,7 +27,8 @@ import {
   type scrollCallback,
   type canvasMutationParam,
   type adoptedStyleSheetParam,
-} from '@newrelic/rrweb-types';
+  type IWindow,
+} from "@newrelic/rrweb-types";
 import type { CrossOriginIframeMessageEventContent } from '../types';
 import { IframeManager } from './iframe-manager';
 import { ShadowDomManager } from './shadow-dom-manager';

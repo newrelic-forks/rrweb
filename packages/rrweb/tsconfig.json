@@ -3,12 +3,6 @@
   "include": ["src"],
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "build",
-    "lib": [
-      "es6",
-      "dom",
-      "es2021.weakref"
-    ],
     "paths": {},
     "tsBuildInfoFile": "./tsconfig.tsbuildinfo",
     "types": [
