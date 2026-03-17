@@ -2,7 +2,7 @@ name: ESLint Check
 
 on:
   push:
-  pull_request_target:
+  pull_request:
 
 jobs:
   eslint_check_upload:
@@ -41,7 +41,7 @@ jobs:
 
   annotation:
     # Skip the annotation action in push events
-    if: github.event_name == 'pull_request_target'
+    if: github.event_name == 'pull_request'
     permissions:
       checks: write
     needs: eslint_check_upload
@@ -59,7 +59,7 @@ jobs:
 
   bundle_size:
     # Only runs on PRs (needs a base branch to compare against)
-    if: github.event_name == 'pull_request_target'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
