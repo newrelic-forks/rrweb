@@ -1,5 +1,5 @@
 import { type Mirror as NodeMirror } from '@newrelic/rrweb-snapshot';
-import { NodeType as RRNodeType } from "@newrelic/rrweb-types";
+import { NodeType as RRNodeType } from '@newrelic/rrweb-types';
 import type {
   canvasMutationData,
   canvasEventWithTime,
