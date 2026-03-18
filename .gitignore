@@ -42,6 +42,6 @@ vite.config.ts.timestamp-*
 *-bundle-analysis.html
 
 # prevent stale output interfering with builds
-**/src/*.js
-**/src/*.js.map
-**/src/*.d.ts
+**/src/**/*.js
+**/src/**/*.js.map
+**/src/**/*.d.ts
