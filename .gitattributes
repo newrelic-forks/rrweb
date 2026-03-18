@@ -11,3 +11,4 @@ packages/rrdom-nodejs/** merge=ours
 packages/web-extension/** merge=ours
 /guide.md merge=ours
 /guide.zh_CN.md merge=ours
+.github/workflows/eslint-check.yml
