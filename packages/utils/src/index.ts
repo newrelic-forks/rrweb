@@ -34,6 +34,8 @@ const testableMethods = {
 
 const untaintedBasePrototype: Partial<BasePrototypeCache> = {};
 
+const isWebKit = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+
 type WindowWithZone = typeof globalThis & {
   Zone?: {
     __symbol__?: (key: string) => string;
@@ -45,7 +47,7 @@ type WindowWithUnpatchedSymbols = typeof globalThis &
 
 /*
 Angular zone patches many things and can pass the untainted checks below, causing performance issues
-Angular zone, puts the unpatched originals on the window, and the names for hose on the zone object.
+Angular zone puts the unpatched originals on the window, and the names for those on the zone object.
 So, we get the unpatched versions from the window object if they exist.
 You can rename Zone, but this is a good enough proxy to avoid going to an iframe to get the untainted versions.
 see: https://github.com/angular/angular/issues/26948
@@ -72,8 +74,10 @@ export function getUntaintedPrototype<T extends keyof BasePrototypeCache>(
   if (untaintedBasePrototype[key])
     return untaintedBasePrototype[key] as BasePrototypeCache[T];
 
+  // Only try to use the unpatched versions on WebKit, since iframe's MO cannot observe changes in the main document.
+  // Keep using the iframe fallback for other browsers to avoid Angular app freezing.
   const defaultObj =
-    angularZoneUnpatchedAlternative(key) ||
+    isWebKit && angularZoneUnpatchedAlternative(key) ||
     (globalThis[key] as TypeofPrototypeOwner);
   const defaultPrototype = defaultObj.prototype as BasePrototypeCache[T];
 

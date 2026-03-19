@@ -4,13 +4,17 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { EventEmitter } from 'node:events';
 import inquirer from 'inquirer';
-import { webkit } from 'playwright';
+import { webkit, chromium, firefox } from 'playwright';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const emitter = new EventEmitter();
+
+// Store selected browser info globally
+let selectedBrowser = null;
+let selectedBrowserName = null;
 
 function getCode() {
   const bundlePath = path.resolve(__dirname, '../dist/rrweb.umd.cjs');
@@ -48,32 +52,27 @@ void (async () => {
         }
 
         loadScript(rrwebCode).then(() => {
-          // Wait a bit for rrweb to be ready
-          setTimeout(() => {
-            win.events = [];
-            if (typeof rrweb !== 'undefined' && rrweb.record) {
-              rrweb.record({
-                emit: (event) => {
-                  win.events.push(event);
-                  win._replLog(event);
-                },
-                plugins: [],
-                recordCanvas: true,
-                sampling: {
-                  canvas: 15  // Use FPS-based recording at 15 FPS for bitmaprenderer support
-                },
-                recordCrossOriginIframes: true,
-                collectFonts: true,
-              });
-              console.log('rrweb recording started');
-            } else {
-              console.error('rrweb is not available');
-            }
-          }, 100);
+          if (typeof rrweb !== 'undefined' && rrweb.record) {
+            rrweb.record({
+              emit: (event) => {
+                win._replLog(event);
+              },
+              plugins: [],
+              recordCanvas: true,
+              sampling: {
+                canvas: 15  // Use FPS-based recording at 15 FPS for bitmaprenderer support
+              },
+              recordCrossOriginIframes: true,
+              collectFonts: true,
+            });
+            console.log('rrweb recording started');
+          } else {
+            console.error('rrweb is not available');
+          }
         });
       }, code);
     } catch (e) {
-      console.error('failed to inject recording script:', e);
+      //console.error('failed to inject recording script:', e);
     }
   }
 
@@ -93,6 +92,38 @@ void (async () => {
 
   async function start(defaultURL) {
     events = [];
+
+    // Add browser selection prompt
+    const { browser } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'browser',
+        message: 'Select browser to test with:',
+        choices: [
+          { name: 'WebKit (Safari)', value: 'webkit' },
+          { name: 'Firefox (Gecko)', value: 'firefox' },
+          { name: 'Chromium', value: 'chromium' },
+        ],
+        default: 'webkit',
+      },
+    ]);
+
+    // Set the selected browser
+    switch (browser) {
+      case 'webkit':
+        selectedBrowser = webkit;
+        selectedBrowserName = 'WebKit';
+        break;
+      case 'firefox':
+        selectedBrowser = firefox;
+        selectedBrowserName = 'Firefox';
+        break;
+      case 'chromium':
+        selectedBrowser = chromium;
+        selectedBrowserName = 'Chromium';
+        break;
+    }
+
     let { url } = await inquirer.prompt([
       {
         type: 'input',
@@ -105,7 +136,7 @@ void (async () => {
       url = defaultURL;
     }
 
-    console.log(`Going to open ${url} in WebKit (Safari)...`);
+    console.log(`Going to open ${url} in ${selectedBrowserName}...`);
     await record(url);
     console.log('Ready to record. You can do any interaction on the page.');
 
@@ -128,9 +159,6 @@ void (async () => {
     emitter.emit('done', shouldReplay);
 
     console.log(`Captured ${events.length} events`);
-    if (events.length > 0) {
-      console.log('Event types:', events.map(e => `type ${e.type}`).join(', '));
-    }
 
     const { shouldStore } = await inquirer.prompt([
       {
@@ -160,9 +188,11 @@ void (async () => {
   }
 
   async function record(url) {
-    const browser = await webkit.launch({
+    // WebKit supports --start-maximized, but Firefox doesn't
+    const launchArgs = selectedBrowserName === 'WebKit' ? ['--start-maximized'] : [];
+    const browser = await selectedBrowser.launch({
       headless: false,
-      args: ['--start-maximized'],
+      args: launchArgs,
     });
     const context = await browser.newContext({
       viewport: {
@@ -215,57 +245,20 @@ void (async () => {
 
     console.log('Navigating to:', url);
     await page.goto(url, {
-      waitUntil: 'networkidle',
+      waitUntil: 'domcontentloaded', // Changed from 'networkidle' to start recording sooner
       timeout: 300000,
     });
 
     // Wait a bit more for Angular/React to fully render
-    await page.waitForTimeout(2000);
+    // Reduced from 2000ms to minimize the window where interactions aren't captured
+    await page.waitForTimeout(500);
 
     // Ensure recording is injected in main frame after everything is loaded
     await injectRecording(page.mainFrame());
 
     console.log('Page loaded and app should be rendered. Recording started.');
 
-    // Periodically sync events from the page (backup mechanism)
-    const syncInterval = setInterval(async () => {
-      try {
-        const pageEvents = await page.evaluate(() => {
-          if (window.events && window.events.length > 0) {
-            const eventsToSync = window.events.slice();
-            window.events = [];
-            return eventsToSync;
-          }
-          return [];
-        });
-        if (pageEvents.length > 0) {
-          events.push(...pageEvents);
-          console.log(`Synced ${pageEvents.length} events from page (total: ${events.length})`);
-        }
-      } catch (e) {
-        // Ignore errors during sync
-      }
-    }, 1000); // Sync every second
-
     emitter.once('done', async (shouldReplay) => {
-      clearInterval(syncInterval);
-
-      // Final sync of any remaining events
-      try {
-        const pageEvents = await page.evaluate(() => {
-          if (window.events && window.events.length > 0) {
-            return window.events.slice();
-          }
-          return [];
-        });
-        if (pageEvents.length > 0) {
-          events.push(...pageEvents);
-          console.log(`Final sync: ${pageEvents.length} events (total: ${events.length})`);
-        }
-      } catch (e) {
-        console.error('Error during final sync:', e.message);
-      }
-
       await context.close();
       await browser.close();
       if (shouldReplay) {
@@ -275,9 +268,10 @@ void (async () => {
   }
 
   async function replay(url, useSpoofedUrl) {
-    const browser = await webkit.launch({
+    const launchArgs = selectedBrowserName === 'WebKit' ? ['--start-maximized'] : [];
+    const browser = await selectedBrowser.launch({
       headless: false,
-      args: ['--start-maximized'],
+      args: launchArgs,
     });
     const context = await browser.newContext({
       viewport: {
@@ -316,7 +310,8 @@ void (async () => {
       .toISOString()
       .replace(/[-|:]/g, '_')
       .replace(/\..+/, '');
-    const fileName = `replay_webkit_${time}.html`;
+    const browserSlug = selectedBrowserName.toLowerCase().replace(/\s+/g, '_');
+    const fileName = `replay_${browserSlug}_${time}.html`;
     const content = `
 <!DOCTYPE html>
 <html lang="en">
@@ -324,7 +319,7 @@ void (async () => {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Record @${time} (WebKit)</title>
+    <title>Record @${time} (${selectedBrowserName})</title>
     <link rel="stylesheet" href="../dist/style.css" />
   </head>
   <body>
