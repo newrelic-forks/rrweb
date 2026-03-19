@@ -122,7 +122,9 @@ jobs:
         run: NODE_OPTIONS='--max-old-space-size=4096' yarn build:all
 
       - name: Install Playwright browsers
-        run: cd packages/rrvideo && yarn playwright install chromium
+        run: |
+          cd packages/rrvideo && yarn playwright install chromium
+          cd ../rrweb && yarn playwright install webkit
 
       - name: Check types
         run: yarn check-types
