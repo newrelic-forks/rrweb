@@ -142,7 +142,7 @@ jobs:
       - name: Install Playwright browsers
         run: |
           cd packages/rrvideo && yarn playwright install chromium
-          cd ../rrweb && yarn playwright install webkit
+          cd ../rrweb && yarn playwright install --with-deps webkit
 
       - name: Check types
         run: yarn check-types
