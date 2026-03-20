@@ -15,6 +15,7 @@
     "test:update": "yarn test:headless --update",
     "retest:update": "cross-env PUPPETEER_HEADLESS=true yarn retest --update",
     "repl": "yarn build && node scripts/repl.js",
+    "repl-playwright": "yarn build && node scripts/repl-playwright.js",
     "dev": "vite build --watch",
     "build": "yarn turbo run prepublish",
     "check-types": "tsc -noEmit",

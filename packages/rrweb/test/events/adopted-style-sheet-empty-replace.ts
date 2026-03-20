@@ -1,5 +1,5 @@
-import { EventType, IncrementalSource } from '@rrweb/types';
-import type { eventWithTime } from '@rrweb/types';
+import { EventType, IncrementalSource } from '@newrelic/rrweb-types';
+import type { eventWithTime } from '@newrelic/rrweb-types';
 
 /**
  * Test events for validating that empty string replace/replaceSync clears stylesheets.
