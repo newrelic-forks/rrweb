@@ -12,8 +12,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   determine-test-need:
     name: Determine Test Necessity
-    # Only relevant for push events to master (release PR merges)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     outputs:
       run-tests: ${{ steps.evaluate.outputs.run-tests }}
@@ -22,26 +21,45 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 2
+      - name: Fetch base branch for PR comparison
+        if: github.event_name == 'pull_request'
+        run: git fetch origin master --depth=1 || true
       - name: Evaluate commit for skipping tests
         id: evaluate
         run: |
-          MESSAGE=$(git log -1 --pretty=%B)
-          echo "Commit message: $MESSAGE"
           # Default to run tests
           RUN_TESTS=true
-          # Heuristic 1: Changesets release PR merge commit has conventional message "Version Packages"
-          if echo "$MESSAGE" | grep -qi '^Version Packages'; then
-            echo "Detected release version commit message; skipping heavy tests.";
-            RUN_TESTS=false
-          else
-            # Heuristic 2: Only version/meta files changed (package.json, CHANGELOG.md, .changeset/*.md)
-            CHANGED=$(git diff --name-only HEAD^ HEAD || true)
-            echo "Changed files:\n$CHANGED"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # For PRs: Check all changes in the PR against base branch
+            CHANGED=$(git diff --name-only origin/master...HEAD || true)
+            echo "PR changed files:"
+            echo "$CHANGED"
             # Filter out allowed meta changes
             NON_META=$(echo "$CHANGED" | grep -Ev '(^|/)package.json$|(^|/)CHANGELOG.md$|^\.changeset/.*\.md$' || true)
             if [ -z "$NON_META" ]; then
-              echo "Only meta/version files changed; skipping heavy tests.";
+              echo "Only meta/version files changed in PR; skipping heavy tests.";
               RUN_TESTS=false
+            fi
+          else
+            # For master pushes: Check the merge commit
+            MESSAGE=$(git log -1 --pretty=%B)
+            echo "Commit message: $MESSAGE"
+            # Heuristic 1: Changesets release PR merge commit has conventional message "Version Packages"
+            if echo "$MESSAGE" | grep -qi '^Version Packages'; then
+              echo "Detected release version commit message; skipping heavy tests.";
+              RUN_TESTS=false
+            else
+              # Heuristic 2: Only version/meta files changed (package.json, CHANGELOG.md, .changeset/*.md)
+              CHANGED=$(git diff --name-only HEAD^ HEAD || true)
+              echo "Changed files:"
+              echo "$CHANGED"
+              # Filter out allowed meta changes
+              NON_META=$(echo "$CHANGED" | grep -Ev '(^|/)package.json$|(^|/)CHANGELOG.md$|^\.changeset/.*\.md$' || true)
+              if [ -z "$NON_META" ]; then
+                echo "Only meta/version files changed; skipping heavy tests.";
+                RUN_TESTS=false
+              fi
             fi
           fi
           echo "run-tests=$RUN_TESTS" >> $GITHUB_OUTPUT
