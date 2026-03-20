@@ -34,7 +34,9 @@ const testableMethods = {
 
 const untaintedBasePrototype: Partial<BasePrototypeCache> = {};
 
-const isWebKit = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+function isWebKit(): boolean {
+  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+}
 
 type WindowWithZone = typeof globalThis & {
   Zone?: {
@@ -77,7 +79,7 @@ export function getUntaintedPrototype<T extends keyof BasePrototypeCache>(
   // Only try to use the unpatched versions on WebKit, since iframe's MO cannot observe changes in the main document.
   // Keep using the iframe fallback for other browsers to avoid Angular app freezing.
   const defaultObj =
-    isWebKit && angularZoneUnpatchedAlternative(key) ||
+    isWebKit() && angularZoneUnpatchedAlternative(key) ||
     (globalThis[key] as TypeofPrototypeOwner);
   const defaultPrototype = defaultObj.prototype as BasePrototypeCache[T];
 
