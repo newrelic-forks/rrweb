@@ -96,7 +96,11 @@ jobs:
   pr-tests:
     name: Tests
     needs: [determine-test-need]
-    if: github.event_name == 'pull_request' || (github.ref == 'refs/heads/master' && needs.determine-test-need.outputs.run-tests == 'true')
+    if: |
+      always() && (
+        github.event_name == 'pull_request' ||
+        (github.ref == 'refs/heads/master' && needs.determine-test-need.outputs.run-tests == 'true')
+      )
     permissions:
       contents: read
     runs-on: ubuntu-latest
