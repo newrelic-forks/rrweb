@@ -118,6 +118,7 @@ jobs:
           cache: 'yarn'
 
       - name: Install Dependencies
+        timeout-minutes: 5
         run: yarn install --frozen-lockfile
         env:
           PUPPETEER_DOWNLOAD_BASE_URL: 'https://storage.googleapis.com/chrome-for-testing-public'
@@ -164,7 +165,10 @@ jobs:
           cache: 'yarn'
 
       - name: Install Dependencies
+        timeout-minutes: 5
         run: yarn install --frozen-lockfile
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
 
       - name: Run Changeset Status
         id: changeset_status
