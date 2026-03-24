@@ -1,5 +1,5 @@
 ---
-"@rrweb/utils": patch
+"@newrelic/rrweb-utils": patch
 ---
 
-load unpatched versions of things from Angular zone when present
+load unpatched versions of things from Angular zone when present (non-Safari browsers only)
