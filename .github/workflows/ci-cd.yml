@@ -144,3 +144,45 @@ jobs:
           name: image-diff
           path: packages/**/__image_snapshots__/__diff_output__/*.png
           if-no-files-found: ignore
+  changeset-status-check:
+    name: Changeset Status
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js lts/*
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'yarn'
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run Changeset Status
+        id: changeset_status
+        run: |
+          echo "output<<EOF" >> $GITHUB_OUTPUT
+          yarn run changeset status --verbose 2>&1 | tee -a $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Comment PR with Changeset Status
+        uses: ./.github/actions/comment-pull-request
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event.number }}
+          comment: |
+            ## 📦 Changeset Status
+
+            ```
+            ${{ steps.changeset_status.outputs.output }}
+            ```
+          comment_tag: <!-- changeset_status_check -->
