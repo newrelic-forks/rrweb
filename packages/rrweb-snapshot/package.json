@@ -73,6 +73,6 @@
     "vitest": "^1.4.0"
   },
   "dependencies": {
-    "postcss": "^8.4.38"
+    "postcss": "^8.5.15"
   }
 }
