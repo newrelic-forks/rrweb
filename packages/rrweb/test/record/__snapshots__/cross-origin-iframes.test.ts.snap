@@ -1109,7 +1109,8 @@ exports[`cross origin iframes > form.html > should map input events correctly 1`
                                 \\"type\\": 2,
                                 \\"tagName\\": \\"input\\",
                                 \\"attributes\\": {
-                                  \\"type\\": \\"text\\"
+                                  \\"type\\": \\"text\\",
+                                  \\"placeholder\\": \\"Enter your name\\"
                                 },
                                 \\"childNodes\\": [],
                                 \\"rootId\\": 11,
@@ -1270,7 +1271,8 @@ exports[`cross origin iframes > form.html > should map input events correctly 1`
                                   \\"id\\": \\"\\",
                                   \\"cols\\": \\"30\\",
                                   \\"rows\\": \\"10\\",
-                                  \\"data-unmask-example\\": \\"true\\"
+                                  \\"data-unmask-example\\": \\"true\\",
+                                  \\"placeholder\\": \\"Enter your message\\"
                                 },
                                 \\"childNodes\\": [],
                                 \\"rootId\\": 11,
@@ -1404,7 +1406,8 @@ exports[`cross origin iframes > form.html > should map input events correctly 1`
                                 \\"type\\": 2,
                                 \\"tagName\\": \\"input\\",
                                 \\"attributes\\": {
-                                  \\"type\\": \\"password\\"
+                                  \\"type\\": \\"password\\",
+                                  \\"placeholder\\": \\"**************\\"
                                 },
                                 \\"childNodes\\": [],
                                 \\"rootId\\": 11,
@@ -1430,6 +1433,7 @@ exports[`cross origin iframes > form.html > should map input events correctly 1`
                             \\"type\\": 2,
                             \\"tagName\\": \\"textarea\\",
                             \\"attributes\\": {
+                              \\"placeholder\\": \\"Additional notes\\",
                               \\"value\\": \\"pre value\\"
                             },
                             \\"childNodes\\": [],
@@ -1438,9 +1442,26 @@ exports[`cross origin iframes > form.html > should map input events correctly 1`
                           },
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"\\\\n    \\",
+                            \\"textContent\\": \\"\\\\n      \\",
                             \\"rootId\\": 11,
                             \\"id\\": 75
+                          },
+                          {
+                            \\"type\\": 2,
+                            \\"tagName\\": \\"input\\",
+                            \\"attributes\\": {
+                              \\"type\\": \\"email\\",
+                              \\"placeholder\\": \\"email@example.com\\"
+                            },
+                            \\"childNodes\\": [],
+                            \\"rootId\\": 11,
+                            \\"id\\": 76
+                          },
+                          {
+                            \\"type\\": 3,
+                            \\"textContent\\": \\"\\\\n    \\",
+                            \\"rootId\\": 11,
+                            \\"id\\": 77
                           }
                         ],
                         \\"rootId\\": 11,
@@ -1450,7 +1471,7 @@ exports[`cross origin iframes > form.html > should map input events correctly 1`
                         \\"type\\": 3,
                         \\"textContent\\": \\"\\\\n  \\\\n\\\\n\\",
                         \\"rootId\\": 11,
-                        \\"id\\": 76
+                        \\"id\\": 78
                       }
                     ],
                     \\"rootId\\": 11,
@@ -2122,7 +2143,8 @@ exports[`cross origin iframes > form.html > should map scroll events correctly 1
                                 \\"type\\": 2,
                                 \\"tagName\\": \\"input\\",
                                 \\"attributes\\": {
-                                  \\"type\\": \\"text\\"
+                                  \\"type\\": \\"text\\",
+                                  \\"placeholder\\": \\"Enter your name\\"
                                 },
                                 \\"childNodes\\": [],
                                 \\"rootId\\": 11,
@@ -2283,7 +2305,8 @@ exports[`cross origin iframes > form.html > should map scroll events correctly 1
                                   \\"id\\": \\"\\",
                                   \\"cols\\": \\"30\\",
                                   \\"rows\\": \\"10\\",
-                                  \\"data-unmask-example\\": \\"true\\"
+                                  \\"data-unmask-example\\": \\"true\\",
+                                  \\"placeholder\\": \\"Enter your message\\"
                                 },
                                 \\"childNodes\\": [],
                                 \\"rootId\\": 11,
@@ -2417,7 +2440,8 @@ exports[`cross origin iframes > form.html > should map scroll events correctly 1
                                 \\"type\\": 2,
                                 \\"tagName\\": \\"input\\",
                                 \\"attributes\\": {
-                                  \\"type\\": \\"password\\"
+                                  \\"type\\": \\"password\\",
+                                  \\"placeholder\\": \\"**************\\"
                                 },
                                 \\"childNodes\\": [],
                                 \\"rootId\\": 11,
@@ -2443,6 +2467,7 @@ exports[`cross origin iframes > form.html > should map scroll events correctly 1
                             \\"type\\": 2,
                             \\"tagName\\": \\"textarea\\",
                             \\"attributes\\": {
+                              \\"placeholder\\": \\"Additional notes\\",
                               \\"value\\": \\"pre value\\"
                             },
                             \\"childNodes\\": [],
@@ -2451,9 +2476,26 @@ exports[`cross origin iframes > form.html > should map scroll events correctly 1
                           },
                           {
                             \\"type\\": 3,
-                            \\"textContent\\": \\"\\\\n    \\",
+                            \\"textContent\\": \\"\\\\n      \\",
                             \\"rootId\\": 11,
                             \\"id\\": 75
+                          },
+                          {
+                            \\"type\\": 2,
+                            \\"tagName\\": \\"input\\",
+                            \\"attributes\\": {
+                              \\"type\\": \\"email\\",
+                              \\"placeholder\\": \\"email@example.com\\"
+                            },
+                            \\"childNodes\\": [],
+                            \\"rootId\\": 11,
+                            \\"id\\": 76
+                          },
+                          {
+                            \\"type\\": 3,
+                            \\"textContent\\": \\"\\\\n    \\",
+                            \\"rootId\\": 11,
+                            \\"id\\": 77
                           }
                         ],
                         \\"rootId\\": 11,
@@ -2463,7 +2505,7 @@ exports[`cross origin iframes > form.html > should map scroll events correctly 1
                         \\"type\\": 3,
                         \\"textContent\\": \\"\\\\n  \\\\n\\\\n\\",
                         \\"rootId\\": 11,
-                        \\"id\\": 76
+                        \\"id\\": 78
                       }
                     ],
                     \\"rootId\\": 11,
