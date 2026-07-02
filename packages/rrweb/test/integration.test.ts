@@ -595,6 +595,52 @@ describe('record integration tests', function (this: ISuite) {
     await assertSnapshot(snapshots);
   });
 
+  it('should mask input placeholders when maskInputOptions is enabled', async () => {
+    const page: puppeteer.Page = await browser.newPage();
+    await page.goto('about:blank');
+    await page.setContent(
+      getHtml.call(this, 'form.html', {
+        maskInputOptions: {
+          text: true,
+          email: true,
+          password: true,
+          textarea: true,
+        },
+      }),
+    );
+
+    const snapshots = (await page.evaluate(
+      'window.snapshots',
+    )) as eventWithTime[];
+    
+    // Verify placeholders are masked in the snapshot
+    const fullSnapshot = snapshots.find((s) => s.type === 2);
+    expect(fullSnapshot).toBeDefined();
+    
+    await assertSnapshot(snapshots);
+  });
+
+  it('should mask both placeholder and value when both present', async () => {
+    const page: puppeteer.Page = await browser.newPage();
+    await page.goto('about:blank');
+    await page.setContent(
+      getHtml.call(this, 'form.html', {
+        maskInputOptions: {
+          text: true,
+          email: true,
+        },
+      }),
+    );
+
+    await page.type('input[type="text"]', 'John Doe');
+    await page.type('input[type="email"]', 'john@example.com');
+
+    const snapshots = (await page.evaluate(
+      'window.snapshots',
+    )) as eventWithTime[];
+    await assertSnapshot(snapshots);
+  });
+
   it('should mask inputs via function call', async () => {
     const page: puppeteer.Page = await browser.newPage();
     await page.goto('about:blank');

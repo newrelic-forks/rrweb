@@ -214,6 +214,31 @@ describe('form', () => {
     return document.querySelector('textarea')!;
   };
 
+  const renderInput = (html: string): HTMLInputElement => {
+    document.write(html);
+    return document.querySelector('input')!;
+  };
+
+  const serializeWithMask = (
+    node: Node,
+    maskInputOptions: Record<string, boolean> = {},
+  ): serializedNodeWithId | null => {
+    return serializeNodeWithId(node, {
+      doc: document,
+      mirror: new Mirror(),
+      blockClass: 'blockblock',
+      blockSelector: null,
+      maskTextClass: 'maskmask',
+      maskTextSelector: null,
+      skipChild: false,
+      inlineStylesheet: true,
+      maskTextFn: undefined,
+      maskInputFn: undefined,
+      slimDOMOptions: {},
+      maskInputOptions,
+    });
+  };
+
   it('should record textarea values once', () => {
     const el = render(`<textarea>Lorem ipsum</textarea>`);
     const sel = serializeNode(el) as elementNode;
@@ -227,6 +252,76 @@ describe('form', () => {
       },
     });
     expect(sel?.childNodes).toEqual([]); // shouldn't be stored in childNodes while in transit
+  });
+
+  it('should mask textarea placeholders when maskInputOptions is enabled', () => {
+    const el = render(`<textarea placeholder="Enter your text here"></textarea>`);
+    const sel = serializeWithMask(el, { textarea: true }) as elementNode;
+
+    expect(sel).toMatchObject({
+      attributes: {
+        placeholder: '********************',
+      },
+    });
+  });
+
+  it('should mask input placeholders when maskInputOptions is enabled', () => {
+    const el = renderInput(`<input type="text" placeholder="Enter your name" />`);
+    const sel = serializeWithMask(el, { text: true }) as elementNode;
+
+    expect(sel).toMatchObject({
+      attributes: {
+        placeholder: '***************',
+      },
+    });
+  });
+
+  it('should mask both value and placeholder when both present', () => {
+    const el = renderInput(`<input type="email" placeholder="email@example.com" />`);
+    el.value = 'user@test.com';
+    const sel = serializeWithMask(el, { email: true }) as elementNode;
+
+    expect(sel).toMatchObject({
+      attributes: {
+        value: '*************',
+        placeholder: '*****************',
+      },
+    });
+  });
+
+  it('should not mask placeholder when maskInputOptions is not enabled', () => {
+    const el = renderInput(`<input type="text" placeholder="Enter your name" />`);
+    const sel = serializeWithMask(el, {}) as elementNode;
+
+    expect(sel).toMatchObject({
+      attributes: {
+        placeholder: 'Enter your name',
+      },
+    });
+  });
+
+  it('should mask password input placeholders by default', () => {
+    const el = renderInput(`<input type="password" placeholder="Enter password" />`);
+    const sel = serializeWithMask(el, { password: true }) as elementNode;
+
+    expect(sel).toMatchObject({
+      attributes: {
+        placeholder: '**************',
+      },
+    });
+  });
+
+  it('should mask placeholder even when value is empty', () => {
+    const el = render(`<textarea placeholder="Type here..."></textarea>`);
+    const sel = serializeWithMask(el, { textarea: true }) as elementNode;
+
+    expect(sel).toMatchObject({
+      attributes: {
+        placeholder: '************',
+      },
+    });
+    // value should not be present when empty
+    expect(sel.attributes.value).toBeUndefined();
   });
 });
 
